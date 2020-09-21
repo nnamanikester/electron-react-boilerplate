@@ -1,27 +1,41 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
+const windowStateKeeper = require("electron-window-state");
 
 function createWindow() {
+  // Window state keeper
+  const state = windowStateKeeper({
+    defaultHeight: 500,
+    defaultWidth: 650,
+  });
+
   // Create the browser window.
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  const mainWindow = new BrowserWindow({
+    x: state.x,
+    y: state.y,
+    width: state.width,
+    height: state.height,
+    minWidth: 350,
+    maxWidth: 650,
+    minHeight: 300,
     webPreferences: {
       nodeIntegration: true,
     },
   });
 
   // and load the index.html of the app.
-  win.loadURL(
+  mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
 
+  state.manage(mainWindow);
+
   // Open the DevTools.
   if (isDev) {
-    win.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   }
 }
 
